@@ -67,7 +67,7 @@ nav.tabs{
   background:var(--surface);border-top:1px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
-nav.tabs .inner{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);height:var(--nav-h)}
+nav.tabs .inner{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav-h)}
 nav.tabs a{
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
   text-decoration:none;color:var(--muted);font-size:13px;font-weight:600;
@@ -75,6 +75,39 @@ nav.tabs a{
 nav.tabs a .ico{font-size:22px;line-height:1}
 nav.tabs a[aria-current="page"]{color:var(--pitch)}
 nav.tabs a[aria-current="page"] .ico{transform:scale(1.15)}
+
+/* Carlos */
+.hero{background:var(--board);color:#EAF1F7;border-radius:20px;padding:20px 18px}
+.hero .kicker{margin:0;font-size:13px;font-weight:700;color:#7CE0A6;text-transform:uppercase;letter-spacing:.08em}
+.hero h2{margin:6px 0 8px;font-size:clamp(26px,8vw,38px);line-height:1.1;color:var(--board-ink)}
+.hero p{margin:0 0 14px;color:#C9D6E6}
+.hero-btn{border:0;border-radius:14px;background:var(--board-ink);color:#13233D;font-weight:700;padding:12px 16px;min-height:44px}
+.card{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px}
+.card h3{margin:0;font-size:18px;line-height:1.3}
+.card .sub{margin:2px 0 12px;font-size:14px;color:var(--muted)}
+.okay-btn{display:block;width:100%;border:0;border-radius:18px;background:var(--pitch);color:#fff;font-family:"Bungee","Arial Black",sans-serif;font-size:30px;padding:18px;box-shadow:0 6px 0 #14532F;transition:transform .08s,box-shadow .08s}
+.okay-btn:active{transform:translateY(5px);box-shadow:0 1px 0 #14532F}
+.okay-out{min-height:1.3em;margin-top:14px;text-align:center;color:var(--led);font-size:clamp(26px,8vw,40px);line-height:1.2;overflow-wrap:anywhere}
+.okay-out.pop{animation:pop .35s ease}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+.okay-count{text-align:center;margin:4px 0 0!important}
+.sim{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.sim .msg{max-width:92%;font-size:15px}
+.msg.user .who{color:#DFF5E8}
+.patience{display:flex;justify-content:space-between;align-items:baseline;font-weight:600;font-size:14px}
+.patience b{font-family:"Bungee","Arial Black",sans-serif;color:var(--led);font-size:22px;font-weight:400}
+.wishes{display:flex;flex-direction:column;gap:8px}
+.wish{display:flex;align-items:center;gap:10px;text-align:left;width:100%;border:1px solid var(--line);background:var(--surface-2);border-radius:14px;padding:12px;min-height:50px;font-weight:600;font-size:15px;line-height:1.35}
+.wish .chk{flex:0 0 22px;height:22px;border-radius:50%;border:2px solid var(--muted)}
+.wish .wi{flex:0 0 auto;font-size:20px}
+.wish[aria-pressed="true"]{border-color:var(--pitch)}
+.wish[aria-pressed="true"] .chk{background:var(--pitch);border-color:var(--pitch);box-shadow:inset 0 0 0 4px var(--surface-2)}
+.nexo{margin-top:16px}
+.nexo .head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 10px;font-weight:600;font-size:14px}
+.nexo b{font-family:"Bungee","Arial Black",sans-serif;color:var(--led);font-weight:400}
+.nexo .note{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.snoop-out p{margin:0 0 6px;font-weight:600;font-size:16px}
+.snoop-out p:last-child{color:var(--pitch)}
 
 /* Chat */
 .chat{display:flex;flex-direction:column;justify-content:flex-end;gap:10px;padding-bottom:8px;min-height:calc(100vh - 250px);min-height:calc(100svh - 250px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
@@ -102,8 +135,11 @@ nav.tabs a[aria-current="page"] .ico{transform:scale(1.15)}
   background:var(--bg);padding:10px 0 4px;margin-top:6px;
 }
 .chips-wrap p{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
-.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;
-  -webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent);padding-right:40px}
+.chips-row{display:flex;align-items:center;gap:6px}
+.chip-nav{flex:0 0 42px;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:24px;line-height:1;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 0 3px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.chip-nav:disabled{opacity:.3}
+.chip-nav:not(:disabled):active{background:var(--surface-2)}
+.chips{flex:1;min-width:0;display:flex;gap:8px;overflow-x:auto;padding:2px 0;scrollbar-width:none;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
 .chip{scroll-snap-align:start}
 .chips::-webkit-scrollbar{display:none}
 .chip{
@@ -288,7 +324,7 @@ body.shake .field{animation:shake .4s}
     <div class="log" id="log" aria-live="polite"></div>
     <div class="after" id="introAfter">
       <h2 class="display">Ramón 2.0</h2>
-      <p>Ustedes usaron IA para hacerme un video y un audio. Yo les subí el nivel: un software completo para que no me extrañen.</p>
+      <p>Hoy coinciden dos eventos: el cumpleaños de Carlos y mi último día. Este software se encarga de los dos, pero el protagonista es Carlos.</p>
       <button class="go" id="go">Iniciar Ramón 2.0</button>
     </div>
   </div>
@@ -297,18 +333,67 @@ body.shake .field{animation:shake .4s}
 <header class="top">
   <div>
     <h1 class="display">Ramón 2.0</h1>
-    <p>Reemplazo virtual de edición limitada</p>
+    <p>Edición especial: cumpleaños de Carlos</p>
   </div>
   <button class="cake-btn" id="cakeBtn" aria-label="Felicitar a Carlos">🎂 <span class="long">Felicitar a </span>Carlos</button>
 </header>
 
 <main>
+  <!-- CARLOS -->
+  <section class="view" id="view-carlos" aria-label="Cumpleaños de Carlos">
+    <div class="hero">
+      <p class="kicker">Cumpleañero del día</p>
+      <h2 class="display">¡Feliz cumpleaños, Carlos Joaquín!</h2>
+      <p>Encargado de Desarrollo 2. Paciencia infinita certificada. Jefe, mentor y, según Ramón, casi un padre.</p>
+      <button class="hero-btn" id="heroCake">🎉 Lanzar confeti para Carlos</button>
+    </div>
+
+    <div class="card">
+      <h3>El botón oficial de Carlos</h3>
+      <p class="sub">Para cerrar cualquier tema, como lo hace él.</p>
+      <button class="okay-btn" id="okayBtn">¡Okay!</button>
+      <div class="okay-out display" id="okayOut" aria-live="polite"></div>
+      <p class="sub okay-count" id="okayCount">Okays emitidos: 0</p>
+    </div>
+
+    <div class="card">
+      <h3>Simulador de reunión con Carlos</h3>
+      <p class="sub">Recreación basada en hechos reales.</p>
+      <div class="sim" id="sim" aria-live="polite"></div>
+      <div class="patience"><span>Paciencia de Carlos</span><b>∞</b></div>
+      <div class="meter"><span id="patBar" style="width:100%"></span></div>
+      <button class="inline-btn" id="simBtn">Responder como Ramón</button>
+    </div>
+
+    <div class="card">
+      <h3>Deseos de Carlos para este año</h3>
+      <p class="sub">Toca cada uno para registrarlo en el Smartsheet.</p>
+      <div class="wishes" id="wishes"></div>
+      <div class="nexo">
+        <div class="head"><span>Cobertura de Nexo en el país</span><b id="nexoVal">87%</b></div>
+        <div class="meter"><span id="nexoBar" style="width:87%"></span></div>
+        <p class="note" id="nexoNote">Faltan algunos rincones.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Modo Snoop: agradecerse a sí mismo</h3>
+      <p class="sub">Porque el ego también se celebra.</p>
+      <div class="snoop-out" id="snoopOut" aria-live="polite"></div>
+      <button class="inline-btn" id="snoopBtn">Activar modo Snoop</button>
+    </div>
+  </section>
+
   <!-- CHAT -->
-  <section class="view" id="view-ramon-gpt" aria-label="Ramón GPT">
+  <section class="view" id="view-ramon-gpt" aria-label="Ramón GPT" hidden>
     <div class="chat" id="chat" aria-live="polite"></div>
     <div class="chips-wrap">
       <p>Pregúntale a Ramón GPT</p>
-      <div class="chips" id="chips"></div>
+      <div class="chips-row">
+        <button class="chip-nav" id="chipPrev" aria-label="Ver opciones anteriores">‹</button>
+        <div class="chips" id="chips"></div>
+        <button class="chip-nav" id="chipNext" aria-label="Ver más opciones">›</button>
+      </div>
     </div>
   </section>
 
@@ -330,6 +415,19 @@ body.shake .field{animation:shake .4s}
     </div>
 
     <div class="rows">
+      <div class="row">
+        <div class="head"><span class="name">Okays de Carlos emitidos hoy</span><span class="val" id="okMon">0</span></div>
+        <p class="note">Sube cada vez que alguien presiona su botón oficial.</p>
+      </div>
+      <div class="row">
+        <div class="head"><span class="name">Paciencia de Carlos</span><span class="val">∞</span></div>
+        <div class="meter"><span style="width:100%"></span></div>
+        <p class="note">Sobrevivió a todas las explicaciones de Ramón.</p>
+      </div>
+      <div class="row">
+        <div class="head"><span class="name">Smartsheet actualizado por Ramón</span><span class="val">No</span></div>
+        <p class="note">Último reporte: “no me dijiste nada… pero está bien”.</p>
+      </div>
       <div class="row">
         <div class="head"><span class="name" id="timeName">Tiempo sin Ramón</span><span class="val" id="timeVal">--:--:--</span></div>
         <p class="note" id="timeNote">Calculando el vacío.</p>
@@ -374,7 +472,7 @@ body.shake .field{animation:shake .4s}
     </div>
     <div class="field" id="field">
       <div class="line"></div><div class="circle"></div>
-      <div class="goal rival"></div><div class="goal-lbl rival">Portería rival (teoría)</div>
+      <div class="goal rival"></div><div class="goal-lbl rival">Portería de Carlos (teoría)</div>
       <div class="goal own"></div><div class="goal-lbl own">Tu portería (destino real)</div>
       <div class="keeper" id="keeper">🧤</div>
       <div class="zones" id="zones">
@@ -402,13 +500,14 @@ body.shake .field{animation:shake .4s}
     </div>
 
     <div class="farewell" id="farewell" hidden>
-      <h2 class="display">Bizcocho desbloqueado</h2>
-      <p>Equipo: durante todo este tiempo yo fui el que hacía las felicitaciones. Hoy me toca despedirme, y quise dejarles una que no se acaba nunca.</p>
-      <p>Gracias por las risas, los partidos (y los autogoles), las carreras de Mario Kart, las derrotas en Smash que en realidad eran victorias, y cada cumpleaños que celebramos juntos.</p>
-      <p>Me dijeron que hay personas cuya huella no necesita actualización. Les cuento un secreto: Advansys tampoco. Se queda instalada conmigo.</p>
-      <p class="sign">Ramonatti</p>
+      <h2 class="display">Bizcocho desbloqueado: ¡feliz cumpleaños, Carlos!</h2>
+      <p>Carlos: gracias por la paciencia infinita, por cada “no me dijiste nada… pero está bien” y por enseñarme mucho más que código. Que este año volvamos a Disney, que visitemos otras credit unions y que Nexo llegue hasta los rincones más lejanos del país… y un chin más.</p>
+      <p>Y hoy, como Snoop Dogg, agradézcase a usted mismo por todo. Se lo ganó.</p>
       <div class="bday">
-        <p><strong>Y Carlos:</strong> perdón por irme justo el día de tu cumpleaños. Considera este software tu regalo. Ya lo probé en mi máquina y funciona, así que no hace falta que QA lo revise. ¡Feliz cumpleaños!</p>
+        <p><strong>Equipo:</strong> durante todo este tiempo yo fui el que hacía las felicitaciones. Hoy me despido con una que no se acaba nunca. Gracias por las risas, los partidos (y los autogoles), Mario Kart, Smash y cada cumpleaños que celebramos juntos.</p>
+        <p>Me dijeron que hay personas cuya huella no necesita actualización. Advansys tampoco: se queda instalada conmigo.</p>
+        <p class="sign">Ramonatti</p>
+        <p>P. D. Carlos: este software es su regalo oficial. Ya lo probé en mi máquina y funciona, así que no hace falta que QA lo revise. ¡Okaaaayyyy!</p>
         <button class="inline-btn" id="replay" style="border-color:#FFC23A;color:#FFC23A">Volver a jugar</button>
       </div>
     </div>
@@ -417,6 +516,7 @@ body.shake .field{animation:shake .4s}
 
 <nav class="tabs" aria-label="Secciones">
   <div class="inner">
+    <a href="#carlos" data-view="carlos"><span class="ico">🎂</span>Carlos</a>
     <a href="#ramon-gpt" data-view="ramon-gpt"><span class="ico">💬</span>Ramón GPT</a>
     <a href="#monitor" data-view="monitor"><span class="ico">📟</span>Monitor</a>
     <a href="#penales" data-view="penales"><span class="ico">⚽</span>Penales</a>
@@ -468,23 +568,23 @@ function tick(){
 // ======= Felicitar a Carlos =======
 const carlosToasts=[
   "¡Feliz cumpleaños, Carlos! Felicitación enviada por el reemplazo. Duración del discurso: 3 segundos. Récord.",
-  "Carlos, el equipo te desea un año sin bugs en Nexo. Ramón 2.0 sabe que es imposible, pero lo desea igual.",
-  "¡Feliz cumpleaños, jefe! Recuerda: el que no baile, no come bizcocho. Eso te incluye.",
-  "Carlos: este confeti es cortesía del empleado que renunció en tu cumpleaños. Con cariño."
+  "Carlos, el equipo le desea un año sin bugs en Nexo. Ramón 2.0 sabe que es imposible, pero lo desea igual.",
+  "¡Feliz cumpleaños, jefe! Recuerde: el que no baile, no come bizcocho. Eso lo incluye.",
+  "Carlos: este confeti es cortesía del empleado que renunció en su cumpleaños. Con cariño."
 ];
 function felicitarCarlos(){confetti(180);toast(pick(carlosToasts))}
 $("cakeBtn").onclick=felicitarCarlos; $("alertCake").onclick=felicitarCarlos;
 
 // ======= Intro =======
 const bootLines=[
-  ["> Anomalía detectada: el operador oficial de cumpleaños renunció.","bad"],
+  ["> Evento 1 detectado: cumpleaños de Carlos Joaquín, encargado de Desarrollo 2.","ok"],
+  ["> Evento 2 detectado: el operador oficial de cumpleaños renunció. El mismo día.","bad"],
+  ["> Conflicto de prioridades… resuelto: el protagonista es Carlos.","ok"],
   ["> Iniciando protocolo de reemplazo…",""],
   ["> Cargando expediente: Ramón (alias Ramonatti, alias Ramón GPT)",""],
-  ["> Creatividad excesiva: copiada.","ok"],
-  ["> Sociabilidad fuera de parámetros: copiada (99,9%).","ok"],
-  ["> Puntería en la portería correcta: no encontrada.","warn"],
-  ["> Efectivo en cartera: verificando…","warn"],
-  ["> Ramón 2.0 listo. Edición limitada.","ok"]
+  ["> Paciencia de Carlos: infinita. Verificado.","ok"],
+  ["> Smartsheet actualizado por Ramón: no encontrado.","warn"],
+  ["> Ramón 2.0 listo. Edición especial de cumpleaños.","ok"]
 ];
 function runIntro(){
   const log=$("log");
@@ -498,16 +598,111 @@ $("go").onclick=()=>{$("intro").remove();confetti(120);startChat()};
 runIntro();
 
 // ======= Navegación por hash =======
-const VIEWS=["ramon-gpt","monitor","penales"];
-function showView(){
-  let v=location.hash.replace("#",""); if(!VIEWS.includes(v)) v="ramon-gpt";
+const VIEWS=["carlos","ramon-gpt","monitor","penales"];
+function showView(forced){
+  let v=(typeof forced==="string")?forced:location.hash.replace("#",""); if(!VIEWS.includes(v)) v="carlos";
   VIEWS.forEach(n=>{$("view-"+n).hidden=(n!==v)});
   document.querySelectorAll("nav.tabs a").forEach(a=>{
     if(a.dataset.view===v) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");
   });
   window.scrollTo(0, v==="ramon-gpt" ? document.body.scrollHeight : 0);
 }
-addEventListener("hashchange",showView); showView();
+addEventListener("hashchange",()=>showView()); showView();
+document.querySelectorAll("nav.tabs a").forEach(a=>{
+  a.addEventListener("click",e=>{
+    e.preventDefault();
+    const v=a.dataset.view; showView(v);
+    try{ if(location.hash!=="#"+v) history.replaceState(null,"","#"+v) }catch(err){}
+  });
+});
+
+// ======= CARLOS =======
+let okays=load("okays",0);
+function drawOk(){ $("okayCount").textContent="Okays emitidos: "+okays; $("okMon").textContent=okays }
+drawOk();
+function okayWord(){ return "¡Ok"+"a".repeat(3+Math.floor(Math.random()*9))+"y".repeat(2+Math.floor(Math.random()*6))+"!" }
+function addOkay(){ okays++; store("okays",okays); drawOk() }
+$("okayBtn").onclick=()=>{
+  addOkay();
+  const o=$("okayOut"); o.textContent=okayWord(); o.classList.remove("pop"); void o.offsetWidth; o.classList.add("pop");
+  if(navigator.vibrate) try{navigator.vibrate(40)}catch(e){}
+  if(okays%10===0){confetti(90);toast(okays+" okays. Récord de paciencia desbloqueado.")}
+};
+$("heroCake").onclick=felicitarCarlos;
+
+const sim=$("sim"); let pat=100, simBusy=false;
+const SIM_Q="Ramón, ¿en qué punto estás? ¿Actualizaste el Smartsheet?";
+function simMsg(who,text){
+  const m=document.createElement("div"); m.className="msg "+(who==="Carlos"?"bot":"user");
+  m.innerHTML='<span class="who">'+who+'</span><p>'+text+'</p>'; sim.appendChild(m);
+  while(sim.children.length>5) sim.removeChild(sim.firstChild);
+}
+simMsg("Carlos",SIM_Q);
+const OT_OPEN=["Mire, Carlos, le explico.","Ok, para ponerlo en contexto.","Buena pregunta. Pero primero déjeme contarle algo.","Sí, sí, claro. Escuche esto."];
+const OT_MID=[
+  "Resulta que el componente de Angular estaba cargando un módulo que en realidad dependía del backend.",
+  "El sábado, en el partido, me di cuenta de que la portería es un concepto relativo.",
+  "Estaba pensando en el discurso del próximo cumpleaños y me salió una idea para una canción.",
+  "Le di Ctrl+F5 como siete veces, y en la cuarta casi funciona.",
+  "Conocí a uno nuevo de Implementación que resulta que es primo de alguien de Finanzas.",
+  "En Mario Kart con Wendy encontré un atajo que, si lo piensas, aplica también a Nexo.",
+  "QA me pidió otra compilación, pero antes revisé si me faltaba una configuración."
+];
+const OT_END=["Así que, en resumen, depende.","Por eso creo que lo mejor es pedir otra compilación.","Entonces técnicamente sí avancé, pero en otra cosa.","Y bueno, el Smartsheet… ahí va."];
+function offTopic(){
+  const mids=OT_MID.slice().sort(()=>Math.random()-.5).slice(0,2+Math.floor(Math.random()*2));
+  return pick(OT_OPEN)+" "+mids.join(" ")+" "+pick(OT_END);
+}
+function drawPat(){ $("patBar").style.width=pat+"%" }
+$("simBtn").onclick=()=>{
+  if(simBusy) return; simBusy=true; $("simBtn").disabled=true;
+  simMsg("Ramón",offTopic());
+  pat=Math.max(4,pat-(20+Math.random()*15)); drawPat();
+  setTimeout(()=>{
+    simMsg("Carlos","No me dijiste nada… pero está bien.");
+    setTimeout(()=>{
+      simMsg("Carlos",okayWord()); addOkay();
+      if(pat<25) setTimeout(()=>{pat=100;drawPat();toast("Paciencia de Carlos regenerada. Es infinita, ya lo sabíamos.")},600);
+      setTimeout(()=>{simMsg("Carlos",SIM_Q);simBusy=false;$("simBtn").disabled=false},1300);
+    },900);
+  },1200);
+};
+
+const WISHES=[["✈️","Volver a Disney"],["🏦","Visitar otras credit unions"],["🗺️","Que Nexo llegue hasta los rincones más lejanos del país… y un chin más"],["🗣️","Que le respondan exactamente lo que preguntó"],["📊","Que alguien actualice el Smartsheet sin que lo pida"]];
+const wishDone=new Set();
+WISHES.forEach(([ico,txt],i)=>{
+  const b=document.createElement("button"); b.className="wish"; b.setAttribute("aria-pressed","false");
+  b.innerHTML='<span class="chk" aria-hidden="true"></span><span class="wi" aria-hidden="true">'+ico+'</span><span>'+txt+'</span>';
+  b.onclick=()=>{
+    const on=!wishDone.has(i); if(on) wishDone.add(i); else wishDone.delete(i);
+    b.setAttribute("aria-pressed",String(on));
+    if(i===2) setNexo(on);
+    if(on&&wishDone.size===WISHES.length){confetti(160);toast("Deseos registrados en el Smartsheet. Carlos dice: ¡Okaaaayyyy!")}
+  };
+  $("wishes").appendChild(b);
+});
+function setNexo(on){
+  const v=$("nexoVal"), bar=$("nexoBar"), n=$("nexoNote");
+  if(on){ bar.style.width="100%"; v.textContent="100%"; setTimeout(()=>{ if(wishDone.has(2)){ v.textContent="100% + un chin más"; n.textContent="Todos los rincones del país. Y un chin más." } },800) }
+  else { bar.style.width="87%"; v.textContent="87%"; n.textContent="Faltan algunos rincones." }
+}
+
+const SNOOP=[
+  "Quiero agradecerme a mí… por creer en mí.",
+  "Por revisar cada Smartsheet, aunque Ramón nunca lo actualizara.",
+  "Por aguantar sus explicaciones sin perder la paciencia.",
+  "Por llevar Nexo hasta los rincones más lejanos del país… y un chin más.",
+  "Por ser yo, todo el tiempo, en todo momento.",
+  "Gracias, Carlos. Atentamente: Carlos. 🎤"
+];
+let snoopBusy=false;
+$("snoopBtn").onclick=()=>{
+  if(snoopBusy) return; snoopBusy=true; const o=$("snoopOut"); o.innerHTML=""; $("snoopBtn").disabled=true;
+  SNOOP.forEach((l,i)=>setTimeout(()=>{
+    const p=document.createElement("p"); p.textContent=l; o.appendChild(p);
+    if(i===SNOOP.length-1){snoopBusy=false;$("snoopBtn").disabled=false;$("snoopBtn").textContent="Otra vez, con más ego";confetti(60)}
+  }, reduceMotion?0:i*900));
+};
 
 // ======= RAMÓN GPT (chat) =======
 const chat=$("chat");
@@ -528,7 +723,7 @@ function botSay(html,delay,after){
 let chatStarted=false;
 function startChat(){
   if(chatStarted) return; chatStarted=true;
-  botSay("<p>Hola. Soy Ramón GPT 2.0, el reemplazo oficial de Ramón.</p>",600,()=>{
+  botSay("<p>Hola. Soy Ramón GPT 2.0, el reemplazo oficial de Ramón. Y antes que nada: ¡feliz cumpleaños, Carlos! 🎂</p>",600,()=>{
     botSay("<p>Fui entrenado con sus discursos, sus excusas de desarrollador y sus autogoles. Puedo arreglar bugs de Nexo (más o menos), escribir discursos de cumpleaños y verificar mi cartera. ¿En qué te ayudo?</p>",900);
   });
 }
@@ -554,6 +749,14 @@ function doF5(){
   setTimeout(()=>document.body.classList.remove("f5"),600);
 }
 const intents={
+  carlos:{label:"🎂 Felicitar a Carlos", run(){
+    addMsg("user","<p>Felicita a Carlos.</p>");
+    botSay(makeSpeech("Carlos","Desarrollo 2"),1200);
+  }},
+  smartsheet:{label:"📊 ¿Actualizaste el Smartsheet?", run(){
+    addMsg("user","<p>Ramón, ¿en qué punto estás? ¿Actualizaste el Smartsheet?</p>");
+    botSay("<p>"+offTopic()+"</p>",1300,()=>botSay("<p>Respuesta automática de Carlos: “No me dijiste nada… pero está bien.” ¡Okaaaayyyy!</p>",1000));
+  }},
   bug:{label:"🐞 Hay un bug en Nexo", run(){
     addMsg("user","<p>Hay un bug en Nexo.</p>");
     botSay("<p>Analizando Nexo… revisando consola… ignorando la consola…</p>",900,()=>{
@@ -624,47 +827,65 @@ Object.entries(intents).forEach(([k,it])=>{
   };
   chipsEl.appendChild(b);
 });
+function updChipNav(){
+  const max=chipsEl.scrollWidth-chipsEl.clientWidth-2;
+  $("chipPrev").disabled=chipsEl.scrollLeft<=2;
+  $("chipNext").disabled=chipsEl.scrollLeft>=max;
+}
+function chipScroll(dir){ chipsEl.scrollBy({left:dir*Math.max(160,chipsEl.clientWidth*0.75),behavior:reduceMotion?"auto":"smooth"}) }
+$("chipPrev").onclick=()=>chipScroll(-1);
+$("chipNext").onclick=()=>chipScroll(1);
+chipsEl.addEventListener("scroll",updChipNav,{passive:true});
+chipsEl.addEventListener("wheel",e=>{
+  if(Math.abs(e.deltaY)>Math.abs(e.deltaX) && chipsEl.scrollWidth>chipsEl.clientWidth){ e.preventDefault(); chipsEl.scrollLeft+=e.deltaY }
+},{passive:false});
+addEventListener("resize",updChipNav);
+if(window.ResizeObserver) new ResizeObserver(updChipNav).observe(chipsEl);
+updChipNav();
 
 // Generador de discursos
 const DEPTS={
-  "Desarrollo 1":["Que en este nuevo año todas tus compilaciones pasen a la primera, y que cuando no pasen, alguien te diga “dale Ctrl+F5” con total seguridad.","Que nunca te falte una configuración, ni un backup, ni un backend a quien echarle la culpa."],
-  "Desarrollo 2":["Que tus módulos carguen rápido y tus merges no tengan conflictos. Y si los tienen, que sean culpa de Desarrollo 1.","Que cada vez que pidas otra compilación, salga bien. Una vez. Aunque sea una."],
-  "Calidad (QA)":["Que encuentres todos los bugs del sistema… menos los de Ramón, que esos ya son patrimonio de la empresa.","Que cada vez que pidas otra compilación, te la entreguen sin quejas. Ramón ya no está para quejarse.","Que cada ticket que abras venga con pasos para reproducirlo, y que ningún desarrollador te responda “en mi máquina funciona”."],
-  "Análisis":["Que todos los requerimientos te lleguen claros a la primera. Sí, sabemos que eso no existe.","Que cada historia de usuario que escribas se implemente tal cual, y que nadie te diga “es un tema del backend”."],
-  "Consultoría":["Que cada cliente entienda a la primera lo que nunca pidió por escrito.","Que todas tus reuniones pudieran haber sido un correo, y que te dejen mandar el correo."],
-  "Implementación":["Que todos tus despliegues salgan bien, y que ninguno sea un viernes a las cinco.","Que cada cliente diga “funciona” sin que tengas que decirle “dale Ctrl+F5”."],
-  "Finanzas":["Que los números siempre cuadren, y que nunca tengas que averiguar si alguien carga $1,000 en la cartera.","Que todos los pagos lleguen a tiempo, a diferencia de los goles de Ramón."],
-  "Recursos Humanos":["Que todos los nuevos ingresos se adapten rápido. Igual Ramón ya los conocía antes que tú.","Que este año tengas más contrataciones que renuncias. Empezando desde mañana, claro."],
-  "Gerencia":["Que tu equipo entregue todo a tiempo, aunque para eso tenga que pedir otra compilación.","Que todas las reuniones terminen antes de lo previsto. Sin los discursos de Ramón, por fin es posible."],
+  "Desarrollo 1":["Que en este nuevo año todas sus compilaciones pasen a la primera, y que cuando no pasen, alguien le diga “dale Ctrl+F5” con total seguridad.","Que nunca le falte una configuración, ni un backup, ni un backend a quien echarle la culpa."],
+  "Desarrollo 2":["Que sus módulos carguen rápido y sus merges no tengan conflictos. Y si los tienen, que sean culpa de Desarrollo 1.","Que cada vez que pida otra compilación, salga bien. Una vez. Aunque sea una."],
+  "Calidad (QA)":["Que encuentre todos los bugs del sistema… menos los de Ramón, que esos ya son patrimonio de la empresa.","Que cada vez que pida otra compilación, se la entreguen sin quejas. Ramón ya no está para quejarse.","Que cada ticket que abra venga con pasos para reproducirlo, y que ningún desarrollador le responda “en mi máquina funciona”."],
+  "Análisis":["Que todos los requerimientos le lleguen claros a la primera. Sí, sabemos que eso no existe.","Que cada historia de usuario que escriba se implemente tal cual, y que nadie le diga “es un tema del backend”."],
+  "Consultoría":["Que cada cliente entienda a la primera lo que nunca pidió por escrito.","Que todas sus reuniones pudieran haber sido un correo, y que le dejen mandar el correo."],
+  "Implementación":["Que todos sus despliegues salgan bien, y que ninguno sea un viernes a las cinco.","Que cada cliente diga “funciona” sin que tenga que decirle “dale Ctrl+F5”."],
+  "Finanzas":["Que los números siempre cuadren, y que nunca tenga que averiguar si alguien carga $1,000 en la cartera.","Que todos los pagos lleguen a tiempo, a diferencia de los goles de Ramón."],
+  "Recursos Humanos":["Que todos los nuevos ingresos se adapten rápido. Igual Ramón ya los conocía antes que usted.","Que este año tenga más contrataciones que renuncias. Empezando desde mañana, claro."],
+  "Gerencia":["Que su equipo entregue todo a tiempo, aunque para eso tenga que pedir otra compilación.","Que todas las reuniones terminen antes de lo previsto. Sin los discursos de Ramón, por fin es posible."],
   "Departamento de Yorquis":["Departamento de una sola persona, y aun así el que mejor funciona de toda Advansys. Cero bugs, cero excusas.","Que este año nadie deje tazas en el fregadero. Ramón ya se fue, así que ahora sí deberían desaparecer."]
 };
 const OPEN=[
   "Atención, equipo. Hoy cumple {n}, y como Ramón ya no está, este discurso lo escribió su reemplazo virtual. Prometo que dura menos de veinte minutos.",
   "Buenas a todos. Como diría Ramón justo antes de quedarse con el micrófono: “seré breve”. Hoy celebramos a {n}.",
-  "Querido {n}: según mis registros, Ramón te conoce. Lógico, Ramón conoce al 99,9% de Advansys.",
+  "{n}: según mis registros, Ramón le conoce. Lógico, Ramón conoce al 99,9% de Advansys.",
   "Se ha detectado un cumpleaños en el sistema. Usuario identificado: {n}. Iniciando protocolo de felicitación sin operador humano."
 ];
 const JOKES=[
-  "Te deseo más goles que Ramón este año. Tranquilo, con uno solo ya lo superas, siempre que sea en la portería correcta.",
-  "Que en Mario Kart siempre te toque un buen personaje, y que en Smash nunca te prepares para perder… digo, vencer.",
-  "Que tu cartera esté siempre más llena que la de Ramón antes del incidente.",
-  "Que tus días sean como Ramón en la oficina: conociendo gente nueva cada cinco minutos."
+  "Le deseo más goles que Ramón este año. Tranquilidad: con uno solo ya lo supera, siempre que sea en la portería correcta.",
+  "Que en Mario Kart siempre le toque un buen personaje, y que en Smash nunca se prepare para perder… digo, vencer.",
+  "Que su cartera esté siempre más llena que la de Ramón antes del incidente.",
+  "Que sus días sean como Ramón en la oficina: conociendo gente nueva cada cinco minutos."
 ];
 const CLOSE=[
   "Y recuerden la regla de Advansys: el que no baile, no come bizcocho. ¡Feliz cumpleaños, {n}!",
-  "Que cumplas muchos más y que el éxito te acompañe toda la vida. ¡Feliz cumpleaños, {n}! ¡A bailar!",
+  "Que cumpla muchos más y que el éxito le acompañe toda la vida. ¡Feliz cumpleaños, {n}! ¡A bailar!",
   "Que nunca falte la alegría. ¡Feliz cumpleaños, {n}! Ahora sí: bizcocho."
 ];
 function makeSpeech(name,dept){
   const n=esc(name.trim()||"compañero");
   const parts=[pick(OPEN),pick(DEPTS[dept]||DEPTS["Desarrollo 1"]),pick(JOKES),pick(CLOSE)].map(s=>"<p>"+s.replace(/\{n\}/g,n)+"</p>");
-  if(/^carlos\b/i.test(name.trim())) parts.push("<p><em>P. D. Carlos: Ramón te pide perdón por renunciar justo el día de tu cumpleaños. Dice que este software es tu regalo, y que ya lo probó en su máquina: funciona.</em></p>");
+  if(/^carlos\b/i.test(name.trim())){
+    parts.splice(3,0,"<p>Carlos, que este año volvamos a Disney, que visitemos otras credit unions y que Nexo llegue hasta los rincones más lejanos del país… y un chin más. Y si alguien le explica algo que no preguntó, ya sabe: “¡Okaaaayyyy!”</p>");
+    parts.push("<p><em>P. D. Carlos: Ramón le pide perdón por renunciar justo el día de su cumpleaños. Dice que este software es su regalo, y que ya lo probó en su máquina: funciona.</em></p>");
+  }
   return parts.join("");
 }
 let formId=0;
 function speechForm(){
   formId++; const id="sf"+formId;
-  const opts=Object.keys(DEPTS).map(d=>'<option'+(d==="Calidad (QA)"?" selected":"")+'>'+d+'</option>').join("");
+  const opts=Object.keys(DEPTS).map(d=>'<option'+(d==="Desarrollo 2"?" selected":"")+'>'+d+'</option>').join("");
   const m=addMsg("bot",
     '<div class="form-row"><label for="'+id+'n">Nombre del cumpleañero</label><input id="'+id+'n" value="Carlos" autocomplete="off"></div>'+
     '<div class="form-row"><label for="'+id+'d">Departamento</label><select id="'+id+'d">'+opts+'</select></div>');
@@ -748,13 +969,16 @@ const autoLines=[
   ["¡AUTOGOL!","El balón miró la portería rival, lo pensó mejor y volvió a casa."],
   ["¡AUTOGOL!","Estrategia secreta activada. El rival agradece la colaboración."],
   ["¡AUTOGOL!","Ramonatti confirma: puede anotar en cualquier equipo."],
+  ["¡AUTOGOL!","Carlos, desde la portería: “No me dijiste nada… pero está bien.”"],
+  ["¡AUTOGOL!","Carlos ni tuvo que tirarse. Solo dijo: “¡Okaaaayyyy!”"],
   ["¡AUTOGOL!","Como Neymar, pero en la otra portería."],
   ["¡AUTOGOL!","El VAR revisa si fue error deportivo o ayuda humanitaria."]
 ];
 const outLines=[
   ["¡FUERA!","Al tercer anillo. El balón ya va por Santiago."],
   ["¡FUERA!","Le pegó con tanta fe que el balón salió del sistema."],
-  ["¡AL POSTE!","Y el poste también lo esquivó. Hasta el poste se aleja."]
+  ["¡AL POSTE!","Y el poste también lo esquivó. Hasta el poste se aleja."],
+  ["¡ATAJADA DE CARLOS!","Reflejos de encargado de Desarrollo 2 y paciencia infinita."]
 ];
 function animate(el,frames,dur){
   if(reduceMotion||!el.animate) return Promise.resolve();
