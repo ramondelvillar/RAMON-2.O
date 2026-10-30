@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ramón 2.0: el reemplazo virtual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EAF1E6; --surface:#FFFFFF; --surface-2:#F3F7F0; --ink:#13233D; --muted:#56667B;
+  --pitch:#1E7A4C; --pitch-2:#25915B; --led:#B87400; --red:#D7263D; --line:rgba(19,35,61,.14);
+  --board:#13233D; --board-ink:#FFC23A; --on-pitch:#FFFFFF; --bubble-user:#1E7A4C;
+  --nav-h:64px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0C1A2E; --surface:#142742; --surface-2:#1A3152; --ink:#EAF1F7; --muted:#9AAEC6;
+    --pitch:#2FA56A; --pitch-2:#2A9660; --led:#FFC23A; --red:#FF4D5E; --line:rgba(234,241,247,.14);
+    --board:#081322; --board-ink:#FFC23A; --on-pitch:#FFFFFF; --bubble-user:#22804F;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0C1A2E; --surface:#142742; --surface-2:#1A3152; --ink:#EAF1F7; --muted:#9AAEC6;
+  --pitch:#2FA56A; --pitch-2:#2A9660; --led:#FFC23A; --red:#FF4D5E; --line:rgba(234,241,247,.14);
+  --board:#081322; --board-ink:#FFC23A; --on-pitch:#FFFFFF; --bubble-user:#22804F;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+body{
+  margin:0;min-height:100%;background:var(--bg);color:var(--ink);
+  font-family:"Outfit",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent;
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--board)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--led);outline-offset:2px}
+.display{font-family:"Bungee","Arial Black",Impact,sans-serif;font-weight:400;letter-spacing:.01em}
+
+/* Header */
+header.top{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:5;
+  background:var(--board);color:#fff;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 16px;
+}
+header.top h1{margin:0;font-size:22px;line-height:1;color:var(--board-ink)}
+header.top p{margin:3px 0 0;font-size:13px;color:#C9D6E6}
+.cake-btn{
+  border:0;border-radius:999px;background:var(--board-ink);color:#13233D;
+  font-weight:700;padding:8px 14px;font-size:14px;white-space:nowrap;
+}
+
+main{max-width:640px;margin:0 auto;padding:16px 16px calc(var(--nav-h) + 24px)}
+.view[hidden]{display:none}
+
+/* Bottom nav */
+nav.tabs{
+  position:fixed;left:0;right:0;bottom:0;z-index:6;
+  background:var(--surface);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+nav.tabs .inner{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);height:var(--nav-h)}
+nav.tabs a{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  text-decoration:none;color:var(--muted);font-size:13px;font-weight:600;
+}
+nav.tabs a .ico{font-size:22px;line-height:1}
+nav.tabs a[aria-current="page"]{color:var(--pitch)}
+nav.tabs a[aria-current="page"] .ico{transform:scale(1.15)}
+
+/* Chat */
+.chat{display:flex;flex-direction:column;gap:10px;padding-bottom:8px}
+.msg{max-width:86%;padding:10px 14px;border-radius:18px;overflow-wrap:anywhere}
+.msg.bot{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:6px}
+.msg.user{align-self:flex-end;background:var(--bubble-user);color:#fff;border-bottom-right-radius:6px}
+.msg .who{display:block;font-size:12px;font-weight:700;color:var(--pitch);margin-bottom:2px}
+.msg p{margin:0 0 8px}.msg p:last-child{margin-bottom:0}
+.typing{display:inline-flex;gap:4px;padding:4px 0}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,100%{opacity:.25}50%{opacity:1}}
+.inline-btn{
+  margin-top:8px;border:2px solid var(--pitch);background:transparent;color:var(--pitch);
+  border-radius:12px;padding:7px 12px;font-weight:700;font-size:14px;
+}
+.form-row{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.form-row label{font-size:13px;font-weight:600;color:var(--muted)}
+.form-row input,.form-row select{
+  font:inherit;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);
+  border-radius:10px;padding:9px 10px;width:100%;
+}
+.chips-wrap{
+  position:sticky;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));
+  background:var(--bg);padding:10px 0 4px;margin-top:6px;
+}
+.chips-wrap p{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto;border:1px solid var(--line);background:var(--surface);
+  border-radius:999px;padding:9px 14px;font-weight:600;font-size:14px;
+}
+.chip:active{background:var(--surface-2)}
+
+/* Monitor */
+.board{
+  background:var(--board);color:#fff;border-radius:18px;padding:16px;
+  box-shadow:inset 0 0 0 3px #22344F;
+}
+.board h2{margin:0 0 12px;font-size:16px;color:#C9D6E6;font-family:"Outfit",sans-serif;font-weight:600}
+.score{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center}
+.score .num{
+  font-family:"Bungee","Arial Black",sans-serif;font-size:64px;line-height:1;color:var(--board-ink);
+  text-shadow:0 0 14px rgba(255,194,58,.45);
+}
+.score .lbl{font-size:13px;color:#C9D6E6;margin-top:6px}
+.board .foot{margin:12px 0 0;font-size:13px;color:#9FB2CB;text-align:center}
+
+.alert{
+  margin-top:16px;border-radius:16px;padding:14px 16px;
+  background:var(--board-ink);color:#13233D;display:flex;gap:12px;align-items:center;
+}
+.alert strong{display:block}
+.alert p{margin:0;font-size:14px}
+.alert button{margin-left:auto;border:0;border-radius:12px;background:#13233D;color:#FFC23A;font-weight:700;padding:9px 12px;white-space:nowrap}
+
+.rows{margin-top:16px;background:var(--surface);border:1px solid var(--line);border-radius:18px}
+.row{padding:14px 16px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.row .name{font-weight:600}
+.row .val{font-family:"Bungee","Arial Black",sans-serif;color:var(--led);font-size:20px;white-space:nowrap}
+.row .note{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.row .act{margin-top:8px}
+.meter{height:10px;border-radius:99px;background:var(--surface-2);margin-top:8px;overflow:hidden;border:1px solid var(--line)}
+.meter span{display:block;height:100%;background:var(--pitch);transition:width .6s ease}
+.meter.warn span{background:var(--red)}
+.big-red{
+  display:block;width:100%;margin:20px 0 0;border:0;border-radius:20px;
+  background:var(--red);color:#fff;padding:20px;font-family:"Bungee","Arial Black",sans-serif;font-size:22px;
+  box-shadow:0 6px 0 #8E1424;transition:transform .08s,box-shadow .08s;
+}
+.big-red:active{transform:translateY(5px);box-shadow:0 1px 0 #8E1424}
+.err{margin-top:12px;min-height:3em;text-align:center;font-weight:600}
+.err code{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--red);display:block;font-size:15px}
+
+/* Penales */
+.scorebar{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  background:var(--board);color:#C9D6E6;border-radius:14px;padding:10px 14px;font-size:13px;
+}
+.scorebar b{font-family:"Bungee","Arial Black",sans-serif;color:var(--board-ink);font-size:24px;font-weight:400;margin-left:6px}
+.field{
+  position:relative;margin-top:12px;aspect-ratio:3/4;max-height:62vh;width:100%;
+  border-radius:18px;overflow:hidden;touch-action:manipulation;user-select:none;
+  background:repeating-linear-gradient(180deg,#1E7A4C 0 11%,#25915B 11% 22%);
+}
+.field .line{position:absolute;left:8%;right:8%;top:50%;height:2px;background:rgba(255,255,255,.55)}
+.field .circle{position:absolute;left:50%;top:50%;width:34%;aspect-ratio:1;border:2px solid rgba(255,255,255,.55);border-radius:50%;transform:translate(-50%,-50%)}
+.goal{
+  position:absolute;left:50%;transform:translateX(-50%);
+  border:4px solid #fff;
+  background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.35) 0 2px,transparent 2px 10px),repeating-linear-gradient(90deg,rgba(255,255,255,.35) 0 2px,transparent 2px 10px);
+}
+.goal.rival{top:3%;width:60%;height:12%;border-top-width:4px;border-bottom:0}
+.goal.own{bottom:2%;width:40%;height:7%;border-bottom-width:4px;border-top:0}
+.goal-lbl{position:absolute;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:#fff;opacity:.9;white-space:nowrap}
+.goal-lbl.rival{top:16%}.goal-lbl.own{bottom:10%}
+.keeper{position:absolute;top:9%;left:50%;font-size:26px;transform:translate(-50%,-50%);transition:left .5s ease}
+.ball{position:absolute;left:50%;top:70%;font-size:30px;line-height:1;transform:translate(-50%,-50%);pointer-events:none}
+.zones{position:absolute;left:20%;right:20%;top:2%;height:16%;display:grid;grid-template-columns:repeat(3,1fr)}
+.zones button{border:0;background:transparent}
+.zones button:active{background:rgba(255,255,255,.15)}
+.tap-hint{position:absolute;left:0;right:0;top:56%;text-align:center;color:#fff;font-weight:700;font-size:15px;text-shadow:0 1px 3px rgba(0,0,0,.4);pointer-events:none}
+.commentary{
+  margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  padding:12px 14px;min-height:4.2em;
+}
+.commentary strong{display:block;font-family:"Bungee","Arial Black",sans-serif;font-weight:400;color:var(--red);font-size:18px}
+.unlock{
+  display:block;width:100%;margin-top:14px;border:0;border-radius:16px;padding:16px;
+  background:var(--board-ink);color:#13233D;font-weight:700;font-size:17px;
+}
+
+.dance{margin-top:20px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px}
+.dance h2{margin:0;font-size:22px;color:var(--pitch)}
+.dance .rule{margin:4px 0 12px;color:var(--muted);font-size:14px}
+.stage{display:flex;justify-content:space-between;align-items:center;height:90px;padding:0 6px;overflow:hidden}
+.dancer{font-size:52px;transition:transform .15s}
+.cake{font-size:52px;transition:transform .45s ease,opacity .45s}
+.bar{position:relative;height:38px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);margin-top:10px;overflow:hidden}
+.bar .zone{position:absolute;top:0;bottom:0;background:var(--pitch);opacity:.85}
+.bar .marker{position:absolute;top:-2px;bottom:-2px;width:6px;margin-left:-3px;background:var(--red);border-radius:3px}
+.dance-btn{
+  display:block;width:100%;margin-top:12px;border:0;border-radius:16px;padding:16px;
+  background:var(--pitch);color:#fff;font-family:"Bungee","Arial Black",sans-serif;font-size:22px;
+}
+.dance-status{margin-top:10px;font-weight:600;min-height:1.5em}
+.steps{display:flex;gap:6px;margin-top:10px}
+.steps i{flex:1;height:8px;border-radius:4px;background:var(--surface-2);border:1px solid var(--line)}
+.steps i.on{background:var(--pitch);border-color:var(--pitch)}
+
+.farewell{
+  margin-top:20px;background:var(--board);color:#EAF1F7;border-radius:18px;padding:20px;
+}
+.farewell h2{margin:0 0 10px;color:var(--board-ink);font-size:24px;line-height:1.2}
+.farewell p{margin:0 0 12px;max-width:62ch}
+.farewell .sign{font-family:"Bungee","Arial Black",sans-serif;color:var(--board-ink)}
+.farewell .bday{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.18)}
+
+/* Intro */
+.intro{
+  position:fixed;inset:0;z-index:20;background:var(--board);color:#DDE7F2;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:calc(24px + env(safe-area-inset-top,0px)) 22px calc(24px + env(safe-area-inset-bottom,0px));
+}
+.intro .wrap{max-width:560px;margin:0 auto;width:100%}
+.intro .log{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:14px;line-height:1.7;min-height:15em}
+.intro .log div{opacity:0;transform:translateY(4px);transition:opacity .25s,transform .25s}
+.intro .log div.show{opacity:1;transform:none}
+.intro .log .ok{color:#7CE0A6}.intro .log .warn{color:#FFC23A}.intro .log .bad{color:#FF7A86}
+.intro h2{font-size:clamp(34px,10vw,56px);line-height:1;margin:20px 0 10px;color:#FFC23A}
+.intro p{margin:0 0 20px;font-size:17px;max-width:44ch}
+.intro .go{border:0;border-radius:16px;background:#FFC23A;color:#13233D;font-weight:700;font-size:18px;padding:16px 22px;width:100%}
+.intro .after{opacity:0;transition:opacity .4s}.intro .after.show{opacity:1}
+
+.toast{
+  position:fixed;left:50%;bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom,0px));
+  transform:translate(-50%,20px);opacity:0;z-index:15;
+  background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:14px;
+  width:min(92vw,520px);font-weight:600;font-size:15px;transition:opacity .25s,transform .25s;pointer-events:none;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:30}
+body.f5 main{animation:f5 .5s ease}
+@keyframes f5{0%{filter:none}30%{filter:blur(3px) brightness(1.6);transform:translateX(4px)}60%{transform:translateX(-4px)}100%{filter:none;transform:none}}
+body.shake .field{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<div class="intro" id="intro" role="dialog" aria-label="Inicio">
+  <div class="wrap">
+    <div class="log" id="log" aria-live="polite"></div>
+    <div class="after" id="introAfter">
+      <h2 class="display">Ramón 2.0</h2>
+      <p>Ustedes usaron IA para hacerme un video y un audio. Yo les subí el nivel: un software completo para que no me extrañen.</p>
+      <button class="go" id="go">Iniciar Ramón 2.0</button>
+    </div>
+  </div>
+</div>
+
+<header class="top">
+  <div>
+    <h1 class="display">Ramón 2.0</h1>
+    <p>Reemplazo virtual de edición limitada</p>
+  </div>
+  <button class="cake-btn" id="cakeBtn">🎂 Felicitar a Carlos</button>
+</header>
+
+<main>
+  <!-- CHAT -->
+  <section class="view" id="view-ramon-gpt" aria-label="Ramón GPT">
+    <div class="chat" id="chat" aria-live="polite"></div>
+    <div class="chips-wrap">
+      <p>Pregúntale a Ramón GPT</p>
+      <div class="chips" id="chips"></div>
+    </div>
+  </section>
+
+  <!-- MONITOR -->
+  <section class="view" id="view-monitor" aria-label="Monitor de ausencia" hidden>
+    <div class="board">
+      <h2>Marcador histórico de Ramonatti</h2>
+      <div class="score">
+        <div><div class="num">0</div><div class="lbl">Goles en la portería correcta</div></div>
+        <div><div class="num" id="monAuto">2</div><div class="lbl">Autogoles</div></div>
+      </div>
+      <p class="foot" id="monAutoNote">2 confirmados en partido oficial. Caso abierto.</p>
+    </div>
+
+    <div class="alert" role="status">
+      <span style="font-size:30px">🎂</span>
+      <div><strong>Cumpleañero detectado: Carlos</strong><p>Protocolo de felicitación activo sin operador humano.</p></div>
+      <button id="alertCake">Felicitar</button>
+    </div>
+
+    <div class="rows">
+      <div class="row">
+        <div class="head"><span class="name" id="timeName">Tiempo sin Ramón</span><span class="val" id="timeVal">--:--:--</span></div>
+        <p class="note" id="timeNote">Calculando el vacío.</p>
+      </div>
+      <div class="row">
+        <div class="head"><span class="name">Discursos de cumpleaños sin autor</span><span class="val" id="speechVal">3</span></div>
+        <p class="note">Cada cumpleaños sin Ramón suma un discurso pendiente. Usen Ramón GPT.</p>
+      </div>
+      <div class="row">
+        <div class="head"><span class="name">Bugs huérfanos en Nexo</span><span class="val" id="bugVal">7</span></div>
+        <p class="note" id="bugNote">Sin dueño desde la renuncia.</p>
+        <button class="inline-btn act" id="monF5">Darle Ctrl+F5</button>
+      </div>
+      <div class="row">
+        <div class="head"><span class="name">Personas que Ramón conoce</span><span class="val">99,9%</span></div>
+        <div class="meter"><span style="width:99.9%"></span></div>
+        <p class="note">El 0,1% restante es porque todavía no lo ha visto.</p>
+      </div>
+      <div class="row">
+        <div class="head"><span class="name">Efectivo en la cartera</span><span class="val" id="cashVal">Verificando…</span></div>
+        <p class="note" id="cashNote">Desde el incidente, el sujeto carga efectivo. Monto desconocido.</p>
+        <button class="inline-btn act" id="cashBtn">Comprobar cartera</button>
+      </div>
+      <div class="row">
+        <div class="head"><span class="name">Alegría de la oficina</span><span class="val" id="joyVal">100%</span></div>
+        <div class="meter" id="joyMeter"><span id="joyBar" style="width:100%"></span></div>
+        <p class="note">Se vacía sin Ramón. Se recarga con anécdotas.</p>
+        <button class="inline-btn act" id="joyBtn">Contar una anécdota de Ramón</button>
+      </div>
+    </div>
+
+    <button class="big-red" id="summon">Invocar a Ramón</button>
+    <div class="err" id="err" aria-live="polite"></div>
+  </section>
+
+  <!-- PENALES -->
+  <section class="view" id="view-penales" aria-label="Penales de Ramonatti" hidden>
+    <div class="scorebar">
+      <span>Goles<b id="pGoals">0</b></span>
+      <span>Autogoles<b id="pAuto">0</b></span>
+      <span>Tiros<b id="pShots">0</b></span>
+    </div>
+    <div class="field" id="field">
+      <div class="line"></div><div class="circle"></div>
+      <div class="goal rival"></div><div class="goal-lbl rival">Portería rival (teoría)</div>
+      <div class="goal own"></div><div class="goal-lbl own">Tu portería (destino real)</div>
+      <div class="keeper" id="keeper">🧤</div>
+      <div class="zones" id="zones">
+        <button data-z="0" aria-label="Patear a la izquierda"></button>
+        <button data-z="1" aria-label="Patear al centro"></button>
+        <button data-z="2" aria-label="Patear a la derecha"></button>
+      </div>
+      <div class="ball" id="ball">⚽</div>
+      <div class="tap-hint" id="tapHint">Toca la portería de arriba para patear</div>
+    </div>
+    <div class="commentary" id="commentary" aria-live="polite">
+      <strong>Ramonatti al balón</strong>
+      Tú controlas a Ramón. Apunta donde quieras. El balón tiene su propia opinión.
+    </div>
+    <button class="unlock" id="unlockBtn" hidden>🎂 Desbloqueado: el reto del bizcocho</button>
+
+    <div class="dance" id="dance" hidden>
+      <h2 class="display">El que no baile, no come bizcocho</h2>
+      <p class="rule">Toca “Bailar” cuando la línea roja esté en la zona verde. Cinco pasos buenos y el bizcocho es tuyo. Si fallas, el bizcocho se aleja.</p>
+      <div class="stage"><span class="dancer" id="dancer">🕺</span><span class="cake" id="cake">🎂</span></div>
+      <div class="bar"><div class="zone" id="zone"></div><div class="marker" id="marker"></div></div>
+      <div class="steps" id="steps"><i></i><i></i><i></i><i></i><i></i></div>
+      <button class="dance-btn" id="danceBtn">¡Bailar!</button>
+      <div class="dance-status" id="danceStatus" aria-live="polite"></div>
+    </div>
+
+    <div class="farewell" id="farewell" hidden>
+      <h2 class="display">Bizcocho desbloqueado</h2>
+      <p>Equipo: durante todo este tiempo yo fui el que hacía las felicitaciones. Hoy me toca despedirme, y quise dejarles una que no se acaba nunca.</p>
+      <p>Gracias por las risas, los partidos (y los autogoles), las carreras de Mario Kart, las derrotas en Smash que en realidad eran victorias, y cada cumpleaños que celebramos juntos.</p>
+      <p>Me dijeron que hay personas cuya huella no necesita actualización. Les cuento un secreto: Advansys tampoco. Se queda instalada conmigo.</p>
+      <p class="sign">Ramonatti</p>
+      <div class="bday">
+        <p><strong>Y Carlos:</strong> perdón por irme justo el día de tu cumpleaños. Considera este software tu regalo. Ya lo probé en mi máquina y funciona, así que no hace falta que QA lo revise. ¡Feliz cumpleaños!</p>
+        <button class="inline-btn" id="replay" style="border-color:#FFC23A;color:#FFC23A">Volver a jugar</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav class="tabs" aria-label="Secciones">
+  <div class="inner">
+    <a href="#ramon-gpt" data-view="ramon-gpt"><span class="ico">💬</span>Ramón GPT</a>
+    <a href="#monitor" data-view="monitor"><span class="ico">📟</span>Monitor</a>
+    <a href="#penales" data-view="penales"><span class="ico">⚽</span>Penales</a>
+  </div>
+</nav>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+// ======= Configuración editable =======
+const SALIDA = new Date(2026, 9, 30, 18, 0, 0); // Último día de Ramón: 30 oct 2026, 6:00 p. m.
+const AUTOGOLES_HISTORICOS = 2;
+
+// ======= Utilidades =======
+const $ = id => document.getElementById(id);
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let toastTimer;
+function toast(text){
+  const t=$("toast"); t.textContent=text; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),3200);
+}
+function store(key,val){try{localStorage.setItem("ramon2_"+key,JSON.stringify(val))}catch(e){}}
+function load(key,def){try{const v=localStorage.getItem("ramon2_"+key);return v==null?def:JSON.parse(v)}catch(e){return def}}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+// ======= Confeti =======
+const cv=$("confetti"), cx=cv.getContext("2d"); let parts=[], running=false;
+function sizeCanvas(){cv.width=innerWidth*devicePixelRatio;cv.height=innerHeight*devicePixelRatio}
+sizeCanvas(); addEventListener("resize",sizeCanvas);
+function confetti(n=140){
+  if(reduceMotion) return;
+  const cols=["#FFC23A","#2FA56A","#FF4D5E","#3D7BFF","#FFFFFF","#B06BFF"];
+  for(let i=0;i<n;i++) parts.push({x:Math.random()*cv.width,y:-20*devicePixelRatio-Math.random()*cv.height*.4,
+    vx:(Math.random()-.5)*4,vy:2+Math.random()*4,r:Math.random()*6.28,vr:(Math.random()-.5)*.3,
+    w:(6+Math.random()*6)*devicePixelRatio,h:(4+Math.random()*4)*devicePixelRatio,c:pick(cols)});
+  if(!running){running=true;requestAnimationFrame(tick)}
+}
+function tick(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  parts.forEach(p=>{p.x+=p.vx*devicePixelRatio;p.y+=p.vy*devicePixelRatio;p.r+=p.vr;
+    cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.w/2,-p.h/2,p.w,p.h);cx.restore()});
+  parts=parts.filter(p=>p.y<cv.height+40);
+  if(parts.length) requestAnimationFrame(tick); else {running=false;cx.clearRect(0,0,cv.width,cv.height)}
+}
+
+// ======= Felicitar a Carlos =======
+const carlosToasts=[
+  "¡Feliz cumpleaños, Carlos! Felicitación enviada por el reemplazo. Duración del discurso: 3 segundos. Récord.",
+  "Carlos, el equipo te desea un año sin bugs en Nexo. Ramón 2.0 sabe que es imposible, pero lo desea igual.",
+  "¡Feliz cumpleaños, jefe! Recuerda: el que no baile, no come bizcocho. Eso te incluye.",
+  "Carlos: este confeti es cortesía del empleado que renunció en tu cumpleaños. Con cariño."
+];
+function felicitarCarlos(){confetti(180);toast(pick(carlosToasts))}
+$("cakeBtn").onclick=felicitarCarlos; $("alertCake").onclick=felicitarCarlos;
+
+// ======= Intro =======
+const bootLines=[
+  ["> Anomalía detectada: el operador oficial de cumpleaños renunció.","bad"],
+  ["> Iniciando protocolo de reemplazo…",""],
+  ["> Cargando expediente: Ramón (alias Ramonatti, alias Ramón GPT)",""],
+  ["> Creatividad excesiva: copiada.","ok"],
+  ["> Sociabilidad fuera de parámetros: copiada (99,9%).","ok"],
+  ["> Puntería en la portería correcta: no encontrada.","warn"],
+  ["> Efectivo en cartera: verificando…","warn"],
+  ["> Ramón 2.0 listo. Edición limitada.","ok"]
+];
+function runIntro(){
+  const log=$("log");
+  bootLines.forEach(([txt,cls],i)=>{
+    const d=document.createElement("div"); d.textContent=txt; if(cls) d.className=cls; log.appendChild(d);
+    setTimeout(()=>d.classList.add("show"), reduceMotion?0:350+i*420);
+  });
+  setTimeout(()=>$("introAfter").classList.add("show"), reduceMotion?0:350+bootLines.length*420+200);
+}
+$("go").onclick=()=>{$("intro").remove();confetti(120);startChat()};
+runIntro();
+
+// ======= Navegación por hash =======
+const VIEWS=["ramon-gpt","monitor","penales"];
+function showView(){
+  let v=location.hash.replace("#",""); if(!VIEWS.includes(v)) v="ramon-gpt";
+  VIEWS.forEach(n=>{$("view-"+n).hidden=(n!==v)});
+  document.querySelectorAll("nav.tabs a").forEach(a=>{
+    if(a.dataset.view===v) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");
+  });
+  window.scrollTo(0, v==="ramon-gpt" ? document.body.scrollHeight : 0);
+}
+addEventListener("hashchange",showView); showView();
+
+// ======= RAMÓN GPT (chat) =======
+const chat=$("chat");
+function addMsg(who,html){
+  const m=document.createElement("div"); m.className="msg "+who;
+  m.innerHTML=(who==="bot"?'<span class="who">Ramón GPT</span>':"")+html;
+  chat.appendChild(m); window.scrollTo({top:document.body.scrollHeight,behavior:reduceMotion?"auto":"smooth"});
+  return m;
+}
+function botSay(html,delay,after){
+  const t=addMsg("bot",'<span class="typing"><i></i><i></i><i></i></span>');
+  setTimeout(()=>{t.innerHTML='<span class="who">Ramón GPT</span>'+html;
+    window.scrollTo({top:document.body.scrollHeight,behavior:reduceMotion?"auto":"smooth"}); if(after) after(t)},
+    delay==null?700+Math.random()*700:delay);
+}
+let chatStarted=false;
+function startChat(){
+  if(chatStarted) return; chatStarted=true;
+  botSay("<p>Hola. Soy Ramón GPT 2.0, el reemplazo oficial de Ramón.</p>",600,()=>{
+    botSay("<p>Fui entrenado con sus discursos, sus excusas de desarrollador y sus autogoles. Puedo arreglar bugs de Nexo (más o menos), escribir discursos de cumpleaños y verificar mi cartera. ¿En qué te ayudo?</p>",900);
+  });
+}
+
+const bugExcuses=[
+  "Eso es caché, dale Ctrl+F5.",
+  "Eso es caché, dale Ctrl+F5.",
+  "Es un tema del backend, yo solo pinto la pantalla.",
+  "Funciona, pero hay que esperar a que cargue el módulo.",
+  "No es un bug, es una feature de edición limitada.",
+  "Pide otra compilación.",
+  "Inténtalo otra vez.",
+  "Pásame un backup.",
+  "Te falta una configuración.",
+  "En mi máquina funciona.",
+  "Eso es un tema de QA.",
+  "Ya no trabajo aquí. Abre un ticket a mi recuerdo."
+];
+let f5Count=load("f5",0);
+function doF5(){
+  f5Count++; store("f5",f5Count);
+  document.body.classList.remove("f5"); void document.body.offsetWidth; document.body.classList.add("f5");
+  setTimeout(()=>document.body.classList.remove("f5"),600);
+}
+const intents={
+  bug:{label:"🐞 Hay un bug en Nexo", run(){
+    addMsg("user","<p>Hay un bug en Nexo.</p>");
+    botSay("<p>Analizando Nexo… revisando consola… ignorando la consola…</p>",900,()=>{
+      const ex=pick(bugExcuses);
+      if(ex.includes("F5")){
+        botSay("<p>“"+ex+"”</p>",900,(m)=>{
+          const b=document.createElement("button"); b.className="inline-btn"; b.textContent="Darle Ctrl+F5";
+          b.onclick=()=>{b.disabled=true;doF5();addMsg("user","<p>Ya le di Ctrl+F5.</p>");
+            botSay("<p>"+pick(["¿Sigue? Entonces pide otra compilación.","¿Y ahora? Dale otra vez, con fe.","Si sigue, es caché del servidor. O sea, del backend. O sea, no es mío.","Perfecto. Ctrl+F5 aplicados en total: "+f5Count+". La ciencia avanza."])+"</p>")};
+          m.appendChild(b);
+        });
+      } else botSay("<p>“"+ex+"”</p>",900);
+    });
+  }},
+  speech:{label:"🎤 Necesito un discurso de cumpleaños", run(){
+    addMsg("user","<p>Necesito un discurso de cumpleaños.</p>");
+    botSay("<p>Claro. Prometo que dura menos que los de Ramón. ¿Para quién es?</p>",800,()=>speechForm());
+  }},
+  money:{label:"💸 ¿Me prestas dinero?", run(){
+    addMsg("user","<p>¿Me prestas dinero?</p>");
+    botSay("<p>Verificando cartera… abriendo cartera… mirando adentro…</p>",900,()=>botSay("<p>"+pick([
+      "Fondos insuficientes. Actualización del sistema en progreso.",
+      "Desde el incidente cargo efectivo. No sé cuánto, pero no es para prestar.",
+      "Una colaboradora dijo que no cargaba ni $1,000. Este sistema no confirma ni desmiente.",
+      "Te puedo prestar un Ctrl+F5. Es lo único que me sobra."
+    ])+"</p>",1100));
+  }},
+  futbol:{label:"⚽ ¿Juegas fútbol el sábado?", run(){
+    addMsg("user","<p>¿Juegas fútbol el sábado?</p>");
+    botSay("<p>"+pick([
+      "¿Para cuál equipo? Da igual, igual voy a anotar.",
+      "Claro. Llevo dos autogoles de experiencia. El rival ya me pidió que vaya.",
+      "Sí, y voy de Neymar. La portería todavía no sabe cuál.",
+      "Juego, pero el balón tiene su propia agenda. Prueba la pestaña Penales y verás."
+    ])+"</p>");
+  }},
+  conoce:{label:"🤝 ¿Conoces a alguien en…?", run(){
+    addMsg("user","<p>¿Conoces a alguien en esa área?</p>");
+    botSay("<p>"+pick([
+      "Sí. Probabilidad: 99,9%. Y si no, es porque todavía no lo he visto.",
+      "Desarrollo 1, Desarrollo 2, Calidad, Análisis, Consultoría, Implementación, Finanzas, Recursos Humanos, Gerencia y el departamento de Yorquis. Sí, a todos. Y tengo una anécdota de cada uno.",
+      "Al nuevo ingreso lo conocí antes que Recursos Humanos."
+    ])+"</p>");
+  }},
+  smash:{label:"🎮 ¿Echamos un Smash?", run(){
+    addMsg("user","<p>¿Echamos un Smash?</p>");
+    botSay("<p>"+pick([
+      "Little Mac listo. Me preparo para perder… digo, vencer.",
+      "Mejor Mario Kart. Con Wendy nadie me puede detener.",
+      "Acepto. Pero si pierdo, fue lag del módulo."
+    ])+"</p>");
+  }}
+};
+const intentCount={};
+const fatigue=[
+  "Ya te respondí eso. Además, mañana trabajo en otro lado.",
+  "Pregunta repetida detectada. Ramón original te habría respondido con un discurso de 20 minutos. Agradece.",
+  "Mi soporte terminó ayer. Esto que ves es cortesía."
+];
+const chipsEl=$("chips");
+Object.entries(intents).forEach(([k,it])=>{
+  const b=document.createElement("button"); b.className="chip"; b.textContent=it.label;
+  b.onclick=()=>{
+    startChat();
+    intentCount[k]=(intentCount[k]||0)+1;
+    if(intentCount[k]>=4){intentCount[k]=0;addMsg("user","<p>"+esc(it.label.replace(/^\S+\s/,""))+"</p>");botSay("<p>"+pick(fatigue)+"</p>");return}
+    it.run();
+  };
+  chipsEl.appendChild(b);
+});
+
+// Generador de discursos
+const DEPTS={
+  "Desarrollo 1":["Que en este nuevo año todas tus compilaciones pasen a la primera, y que cuando no pasen, alguien te diga “dale Ctrl+F5” con total seguridad.","Que nunca te falte una configuración, ni un backup, ni un backend a quien echarle la culpa."],
+  "Desarrollo 2":["Que tus módulos carguen rápido y tus merges no tengan conflictos. Y si los tienen, que sean culpa de Desarrollo 1.","Que cada vez que pidas otra compilación, salga bien. Una vez. Aunque sea una."],
+  "Calidad (QA)":["Que encuentres todos los bugs del sistema… menos los de Ramón, que esos ya son patrimonio de la empresa.","Que cada vez que pidas otra compilación, te la entreguen sin quejas. Ramón ya no está para quejarse.","Que cada ticket que abras venga con pasos para reproducirlo, y que ningún desarrollador te responda “en mi máquina funciona”."],
+  "Análisis":["Que todos los requerimientos te lleguen claros a la primera. Sí, sabemos que eso no existe.","Que cada historia de usuario que escribas se implemente tal cual, y que nadie te diga “es un tema del backend”."],
+  "Consultoría":["Que cada cliente entienda a la primera lo que nunca pidió por escrito.","Que todas tus reuniones pudieran haber sido un correo, y que te dejen mandar el correo."],
+  "Implementación":["Que todos tus despliegues salgan bien, y que ninguno sea un viernes a las cinco.","Que cada cliente diga “funciona” sin que tengas que decirle “dale Ctrl+F5”."],
+  "Finanzas":["Que los números siempre cuadren, y que nunca tengas que averiguar si alguien carga $1,000 en la cartera.","Que todos los pagos lleguen a tiempo, a diferencia de los goles de Ramón."],
+  "Recursos Humanos":["Que todos los nuevos ingresos se adapten rápido. Igual Ramón ya los conocía antes que tú.","Que este año tengas más contrataciones que renuncias. Empezando desde mañana, claro."],
+  "Gerencia":["Que tu equipo entregue todo a tiempo, aunque para eso tenga que pedir otra compilación.","Que todas las reuniones terminen antes de lo previsto. Sin los discursos de Ramón, por fin es posible."],
+  "Departamento de Yorquis":["Departamento de una sola persona, y aun así el que mejor funciona de toda Advansys. Cero bugs, cero excusas.","Que este año nadie deje tazas en el fregadero. Ramón ya se fue, así que ahora sí deberían desaparecer."]
+};
+const OPEN=[
+  "Atención, equipo. Hoy cumple {n}, y como Ramón ya no está, este discurso lo escribió su reemplazo virtual. Prometo que dura menos de veinte minutos.",
+  "Buenas a todos. Como diría Ramón justo antes de quedarse con el micrófono: “seré breve”. Hoy celebramos a {n}.",
+  "Querido {n}: según mis registros, Ramón te conoce. Lógico, Ramón conoce al 99,9% de Advansys.",
+  "Se ha detectado un cumpleaños en el sistema. Usuario identificado: {n}. Iniciando protocolo de felicitación sin operador humano."
+];
+const JOKES=[
+  "Te deseo más goles que Ramón este año. Tranquilo, con uno solo ya lo superas, siempre que sea en la portería correcta.",
+  "Que en Mario Kart siempre te toque un buen personaje, y que en Smash nunca te prepares para perder… digo, vencer.",
+  "Que tu cartera esté siempre más llena que la de Ramón antes del incidente.",
+  "Que tus días sean como Ramón en la oficina: conociendo gente nueva cada cinco minutos."
+];
+const CLOSE=[
+  "Y recuerden la regla de Advansys: el que no baile, no come bizcocho. ¡Feliz cumpleaños, {n}!",
+  "Que cumplas muchos más y que el éxito te acompañe toda la vida. ¡Feliz cumpleaños, {n}! ¡A bailar!",
+  "Que nunca falte la alegría. ¡Feliz cumpleaños, {n}! Ahora sí: bizcocho."
+];
+function makeSpeech(name,dept){
+  const n=esc(name.trim()||"compañero");
+  const parts=[pick(OPEN),pick(DEPTS[dept]||DEPTS["Desarrollo 1"]),pick(JOKES),pick(CLOSE)].map(s=>"<p>"+s.replace(/\{n\}/g,n)+"</p>");
+  if(/^carlos\b/i.test(name.trim())) parts.push("<p><em>P. D. Carlos: Ramón te pide perdón por renunciar justo el día de tu cumpleaños. Dice que este software es tu regalo, y que ya lo probó en su máquina: funciona.</em></p>");
+  return parts.join("");
+}
+let formId=0;
+function speechForm(){
+  formId++; const id="sf"+formId;
+  const opts=Object.keys(DEPTS).map(d=>'<option'+(d==="Calidad (QA)"?" selected":"")+'>'+d+'</option>').join("");
+  const m=addMsg("bot",
+    '<div class="form-row"><label for="'+id+'n">Nombre del cumpleañero</label><input id="'+id+'n" value="Carlos" autocomplete="off"></div>'+
+    '<div class="form-row"><label for="'+id+'d">Departamento</label><select id="'+id+'d">'+opts+'</select></div>');
+  const b=document.createElement("button"); b.className="inline-btn"; b.textContent="Generar discurso";
+  b.onclick=()=>{
+    const name=$(id+"n").value, dept=$(id+"d").value;
+    addMsg("user","<p>Un discurso para "+esc(name||"alguien")+" de "+esc(dept)+".</p>");
+    const gen=()=>botSay(makeSpeech(name,dept),1200,(msg)=>{
+      const again=document.createElement("button"); again.className="inline-btn"; again.textContent="Generar otro";
+      again.onclick=()=>{again.disabled=true;gen()}; msg.appendChild(again);
+      const st=$("speechVal"); st.textContent=Math.max(0,parseInt(st.textContent,10)-1);
+    });
+    gen();
+  };
+  m.appendChild(b);
+}
+
+// ======= MONITOR =======
+function fmt(ms){
+  const s=Math.floor(ms/1000), d=Math.floor(s/86400), h=Math.floor(s%86400/3600), m=Math.floor(s%3600/60), x=s%60;
+  const p=v=>String(v).padStart(2,"0");
+  return (d?d+"d ":"")+p(h)+":"+p(m)+":"+p(x);
+}
+function updTime(){
+  const diff=Date.now()-SALIDA.getTime();
+  if(diff<0){ $("timeName").textContent="Desconexión de Ramón en"; $("timeVal").textContent=fmt(-diff); $("timeNote").textContent="Ramón todavía está en el edificio. Aprovechen para pedirle un último Ctrl+F5."; }
+  else { $("timeName").textContent="Tiempo sin Ramón"; $("timeVal").textContent=fmt(diff); $("timeNote").textContent="Cada segundo cuenta. Literalmente, este contador los cuenta."; }
+}
+updTime(); setInterval(updTime,1000);
+
+setInterval(()=>{ if(Math.random()<.5){const e=$("speechVal");e.textContent=parseInt(e.textContent,10)+1} },20000);
+setInterval(()=>{ const e=$("bugVal");e.textContent=parseInt(e.textContent,10)+1 },12000);
+$("monF5").onclick=()=>{
+  doF5(); const e=$("bugVal"), before=parseInt(e.textContent,10);
+  e.textContent="0"; $("bugNote").textContent="Ctrl+F5 aplicado. Bugs resueltos…";
+  setTimeout(()=>{e.textContent=before+1;$("bugNote").textContent=pick(["Era caché. Volvió con un amigo.","Pide otra compilación.","Te falta una configuración.","Es un tema del backend."])},1400);
+};
+const cashMsgs=[["Algo hay","No sabemos cuánto, pero al menos algo tiene."],["> $0","Confirmado: más de cero. La reputación está a salvo."],["Clasificado","Información protegida desde el incidente."],["Verificando…","El sujeto se niega a abrir la cartera frente a testigos."]];
+$("cashBtn").onclick=()=>{ $("cashVal").textContent="Verificando…"; setTimeout(()=>{const [v,n]=pick(cashMsgs);$("cashVal").textContent=v;$("cashNote").textContent=n},900) };
+
+let joy=100;
+function drawJoy(){ $("joyVal").textContent=Math.round(joy)+"%"; $("joyBar").style.width=joy+"%"; $("joyMeter").classList.toggle("warn",joy<35) }
+setInterval(()=>{joy=Math.max(8,joy-1);drawJoy()},4000);
+const anecdotas=[
+  "¿Te acuerdas de los dos autogoles? Estrategia secreta, dicen.",
+  "Ramón en Mario Kart con Wendy: nadie lo podía detener.",
+  "Ramón conoció al nuevo ingreso antes que Recursos Humanos.",
+  "El discurso de cumpleaños que iba a durar dos minutos.",
+  "“Eso es caché, dale Ctrl+F5.” Funcionó una vez. Una."
+];
+$("joyBtn").onclick=()=>{joy=Math.min(100,joy+15);drawJoy();toast(pick(anecdotas))};
+
+const errors=[
+  ["Error 404","Ramón no encontrado. Ahora trabaja en otra empresa."],
+  ["Error 503","Ramón está en una llamada con su nuevo equipo. Intente más tarde."],
+  ["Error 429","Demasiadas solicitudes de discursos. Use Ramón GPT."],
+  ["Error 402","Pago requerido. Ramón dice que ahora sí carga efectivo."],
+  ["Error 418","Ramón está jugando Mario Kart con Wendy. No interrumpir."],
+  ["Error 409","Conflicto: Ramón está en los dos equipos y anotó en ambas porterías."],
+  ["Error 500","Error interno. Te falta una configuración."],
+  ["Error 304","Nada cambió. ¿Ya le diste Ctrl+F5?"]
+];
+let lastErr=-1;
+$("summon").onclick=()=>{
+  let i; do{i=Math.floor(Math.random()*errors.length)}while(i===lastErr); lastErr=i;
+  $("err").innerHTML="<code>"+errors[i][0]+"</code>"+errors[i][1];
+  if(navigator.vibrate) try{navigator.vibrate(80)}catch(e){}
+};
+
+// ======= PENALES =======
+let gameAuto=load("auto",0), shots=0, busy=false;
+function drawScores(){
+  $("pAuto").textContent=gameAuto; $("pShots").textContent=shots;
+  $("monAuto").textContent=AUTOGOLES_HISTORICOS+gameAuto;
+  $("monAutoNote").textContent=AUTOGOLES_HISTORICOS+" confirmados en partido oficial"+(gameAuto?" y "+gameAuto+" en el simulador":"")+". Caso abierto.";
+}
+drawScores();
+const ball=$("ball"), keeper=$("keeper"), com=$("commentary");
+function say(t,b){com.innerHTML="<strong>"+t+"</strong>"+b}
+const autoLines=[
+  ["¡AUTOGOL!","El balón miró la portería rival, lo pensó mejor y volvió a casa."],
+  ["¡AUTOGOL!","Estrategia secreta activada. El rival agradece la colaboración."],
+  ["¡AUTOGOL!","Ramonatti confirma: puede anotar en cualquier equipo."],
+  ["¡AUTOGOL!","Como Neymar, pero en la otra portería."],
+  ["¡AUTOGOL!","El VAR revisa si fue error deportivo o ayuda humanitaria."]
+];
+const outLines=[
+  ["¡FUERA!","Al tercer anillo. El balón ya va por Santiago."],
+  ["¡FUERA!","Le pegó con tanta fe que el balón salió del sistema."],
+  ["¡AL POSTE!","Y el poste también lo esquivó. Hasta el poste se aleja."]
+];
+function animate(el,frames,dur){
+  if(reduceMotion||!el.animate) return Promise.resolve();
+  return el.animate(frames,{duration:dur,easing:"ease-in-out",fill:"forwards"}).finished;
+}
+function shoot(z){
+  if(busy) return; busy=true; shots++; $("tapHint").hidden=true;
+  const tx=[33,50,67][z];
+  keeper.style.left=pick([33,50,67])+"%";
+  let r=Math.random(); if(shots===1) r=0; // el primero siempre es autogol
+  let kind = r<.62?"auto": r<.88?"out":"var";
+  let frames;
+  if(kind==="auto"){
+    const bx=tx+(Math.random()*16-8);
+    frames=[{left:"50%",top:"70%",transform:"translate(-50%,-50%) rotate(0)"},
+            {left:tx+"%",top:"16%",transform:"translate(-50%,-50%) rotate(540deg)",offset:.35},
+            {left:bx+"%",top:"45%",transform:"translate(-50%,-50%) rotate(900deg)",offset:.65},
+            {left:"50%",top:"95%",transform:"translate(-50%,-50%) rotate(1300deg)"}];
+  } else if(kind==="out"){
+    const side=pick([-12,112]);
+    frames=[{left:"50%",top:"70%",transform:"translate(-50%,-50%) rotate(0)"},
+            {left:side+"%",top:"-10%",transform:"translate(-50%,-50%) rotate(720deg)"}];
+  } else {
+    frames=[{left:"50%",top:"70%",transform:"translate(-50%,-50%) rotate(0)"},
+            {left:tx+"%",top:"8%",transform:"translate(-50%,-50%) rotate(720deg)"}];
+  }
+  animate(ball,frames,kind==="out"?900:1500).then(()=>{
+    if(kind==="auto"){gameAuto++; store("auto",gameAuto); document.body.classList.add("shake"); setTimeout(()=>document.body.classList.remove("shake"),450); say(...pick(autoLines))}
+    else if(kind==="out"){ say(...pick(outLines)) }
+    else {
+      $("pGoals").textContent="1"; say("¡¡GOOOL!!","Ramonatti lo logró. Esperen… el VAR está revisando…");
+      setTimeout(()=>{ $("pGoals").textContent="0"; gameAuto++; store("auto",gameAuto); drawScores();
+        say("ANULADO","Según el VAR, Ramón jugaba en el otro equipo. Cuenta como autogol."); },1700);
+    }
+    drawScores();
+    setTimeout(()=>{
+      if(ball.getAnimations) ball.getAnimations().forEach(a=>a.cancel());
+      keeper.style.left="50%"; busy=false;
+      if(shots>=5) $("unlockBtn").hidden=false;
+    }, kind==="var"?1900:700);
+  });
+}
+document.querySelectorAll("#zones button").forEach(b=>b.onclick=()=>shoot(+b.dataset.z));
+$("field").addEventListener("click",e=>{
+  if(e.target.closest("#zones")) return;
+  const r=$("field").getBoundingClientRect(), x=(e.clientX-r.left)/r.width;
+  if((e.clientY-r.top)/r.height<.5) shoot(x<.4?0:x>.6?2:1);
+});
+
+// ======= Reto del bizcocho =======
+let pos=0, dir=1, speed=.9, hits=0, misses=0, zoneStart=40, zoneW=24, rafId=null, danceOn=false;
+const dancerPoses=["🕺","💃","🕺","🤸","🕺","🙌"];
+function newZone(){ zoneStart=8+Math.random()*(84-zoneW); $("zone").style.left=zoneStart+"%"; $("zone").style.width=zoneW+"%" }
+function drawSteps(){ document.querySelectorAll("#steps i").forEach((s,i)=>s.classList.toggle("on",i<hits)) }
+function loop(){
+  pos+=dir*speed; if(pos>=100){pos=100;dir=-1} if(pos<=0){pos=0;dir=1}
+  $("marker").style.left=pos+"%"; if(danceOn) rafId=requestAnimationFrame(loop);
+}
+function startDance(){
+  hits=0;misses=0;speed=.9;zoneW=24;danceOn=true;newZone();drawSteps();
+  $("cake").style.transform="none";$("cake").style.opacity=1;$("danceStatus").textContent="";
+  $("danceBtn").disabled=false;$("danceBtn").textContent="¡Bailar!";
+  cancelAnimationFrame(rafId); rafId=requestAnimationFrame(loop);
+}
+$("unlockBtn").onclick=()=>{ $("dance").hidden=false; $("unlockBtn").hidden=true; startDance(); $("dance").scrollIntoView({behavior:reduceMotion?"auto":"smooth"}) };
+$("danceBtn").onclick=()=>{
+  if(!danceOn){startDance();return}
+  const ok=pos>=zoneStart&&pos<=zoneStart+zoneW;
+  const d=$("dancer");
+  if(ok){
+    hits++; d.textContent=dancerPoses[hits%dancerPoses.length]; d.style.transform="translateY(-14px) rotate("+(hits%2?12:-12)+"deg)";
+    setTimeout(()=>d.style.transform="none",160);
+    $("danceStatus").textContent=pick(["¡Eso! Pasito aprobado por QA.","¡Bien! Ni Neymar baila así.","¡Ritmo detectado! Compilación exitosa.","¡Sí! El bizcocho se acerca."]);
+    speed+=.35; zoneW=Math.max(12,zoneW-2.5); newZone(); drawSteps();
+    if(hits>=5) winDance();
+  } else {
+    misses++;
+    $("cake").style.transform="translateX("+(misses*22)+"px) scale("+(1-misses*.15)+")";
+    $("danceStatus").textContent=pick(["Fallaste. El bizcocho se aleja.","Eso no fue baile, fue un autogol con los pies.","Error de ritmo. Dale Ctrl+F5 a tus pies.","El bizcocho dice que así no."]);
+    if(misses>=5){danceOn=false;cancelAnimationFrame(rafId);$("cake").style.opacity=0;
+      $("danceStatus").textContent="Sin baile no hay bizcocho. Regla de Advansys.";$("danceBtn").textContent="Intentar otra vez"}
+  }
+};
+function winDance(){
+  danceOn=false; cancelAnimationFrame(rafId);
+  $("cake").style.transform="translateX(-30px) scale(1.4)";
+  $("danceStatus").textContent="¡Bizcocho ganado!"; $("danceBtn").disabled=true;
+  confetti(220);
+  setTimeout(()=>{ $("farewell").hidden=false; $("farewell").scrollIntoView({behavior:reduceMotion?"auto":"smooth"}) },900);
+}
+$("replay").onclick=()=>{
+  $("farewell").hidden=true; $("dance").hidden=true; shots=0; $("pGoals").textContent="0"; drawScores();
+  $("tapHint").hidden=false; say("Ramonatti al balón","Segunda temporada. Mismos resultados garantizados.");
+  window.scrollTo({top:0,behavior:reduceMotion?"auto":"smooth"});
+};
+})();
+</script>
+</body>
+</html>
